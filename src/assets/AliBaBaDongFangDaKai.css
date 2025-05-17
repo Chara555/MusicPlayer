@@ -1,0 +1,9 @@
+/*阿里巴巴艺术字体，用于改变时间模块的字体*/
+@font-face {
+    font-family: 'AlimamaDongFangDaKai';
+    src: url('fonts/AlimamaDongFangDaKai-Regular.woff2') format('woff2'),
+        url('fonts/AlimamaDongFangDaKai-Regular.woff') format('woff'),
+        url('fonts/AlimamaDongFangDaKai-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
