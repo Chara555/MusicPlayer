@@ -8,7 +8,7 @@ v1.0版本
 
 预览效果
 
-![123](..\music-player-vue\screenshot\123.png)
+![image](https://github.com/Chara555/MusicPlayer/blob/main/screenshot/123.png)
 
 加入一个简单的播放器效果，背景虚化以及右下角的时间显示
 
