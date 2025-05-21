@@ -1,74 +1,98 @@
 <template>
-  <div
-    class="background"
-    :style="{ backgroundImage: currentSong.background }"
-  ></div>
-  <div class="player" id="player">
-    <div class="cover">
-      <img
-        :src="currentSong.cover"
-        :class="['rotating', { playing: isPlaying }]"
-        alt="歌曲封面"
+  <p style="color: red">🎵 MusicPlayer 渲染</p>
+  <div class="app">
+    <div
+      class="background"
+      :style="{ backgroundImage: `url(${currentSong.background})` }"
+    ></div>
+
+    <div class="player" id="player">
+      <div class="cover">
+        <img
+          :src="currentSong.cover"
+          :class="['rotating', { playing: isPlaying }]"
+          alt="歌曲封面"
+        />
+      </div>
+
+      <audio ref="audio" />
+
+      <input
+        type="range"
+        v-model="progress"
+        @input="onSeek"
+        :max="100"
+        :min="0"
+        step="0.1"
       />
-    </div>
-    <audio ref="audio" :src="currentSong.src"></audio>
-    <input
-      type="range"
-      v-model="progress"
-      @input="onSeek"
-      :max="100"
-      :min="0"
-      step="0.1"
-    />
-    <!-- 音乐播放器部分 -->
-    <div class="controls">
-      <button><i class="iconfont icon-shangyishoushangyige"></i></button>
-      <button @click="togglePlay">
-        <i
-          class="iconfont"
-          :class="isPlaying ? 'icon-zanting' : 'icon-bofang'"
-        ></i>
-      </button>
-      <button><i class="iconfont icon-xiayigexiayishou"></i></button>
+
+      <div class="controls">
+        <button @click="prevSong">
+          <i class="iconfont icon-shangyishoushangyige"></i>
+        </button>
+        <button @click="togglePlay">
+          <i
+            class="iconfont"
+            :class="isPlaying ? 'icon-zanting' : 'icon-bofang'"
+          ></i>
+        </button>
+        <button @click="nextSong">
+          <i class="iconfont icon-xiayigexiayishou"></i>
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 
 const songs = [
   {
     src: "/music/绝不会忘记.mp3",
     cover: "/imgs/绝不会忘记.jpg",
-    background: "url('public/bg/bg1.jpg')",
+    background: "/bg/bg1.jpg",
   },
   {
-    src: "/music/music2.mp3",
-    cover: "/imgs/cover2.jpg",
-    background: "url('/bg/bg2.jpg')",
+    src: "/music/吉他与孤独与蓝色星球.mp3",
+    cover: "/imgs/吉他与孤独与蓝色星球.jpg",
+    background: "/bg/bg2.jpg",
   },
 ];
 
 const currentSongIndex = ref(0);
-const currentSong = reactive({ ...songs[currentSongIndex.value] });
-
+const currentSong = ref(songs[currentSongIndex.value]);
 const isPlaying = ref(false);
 const progress = ref(0);
 const audio = ref(null);
 
 function loadSong(index) {
   currentSongIndex.value = index;
-  Object.assign(currentSong, songs[index]);
+  currentSong.value = songs[index];
   progress.value = 0;
+  console.log("切换歌曲:", currentSong.value);
+  console.log("backgroundImage:", `url(${currentSong.value.background})`);
   if (audio.value) {
-    audio.value.src = currentSong.src;
-    audio.value.load();
+    audio.value.pause(); // 先停止播放
+    audio.value.src = currentSong.value.src;
+    audio.value.load(); // 触发 canplay
+
+    const handleCanPlay = () => {
+      if (isPlaying.value) {
+        audio.value.play().catch((err) => {
+          console.error("播放失败:", err);
+        });
+      }
+      audio.value.removeEventListener("canplay", handleCanPlay);
+    };
+
+    audio.value.addEventListener("canplay", handleCanPlay);
   }
 }
 
 function togglePlay() {
   if (!audio.value) return;
+
   if (audio.value.paused) {
     audio.value.play();
     isPlaying.value = true;
@@ -76,6 +100,17 @@ function togglePlay() {
     audio.value.pause();
     isPlaying.value = false;
   }
+}
+function nextSong() {
+  const nextIndex = (currentSongIndex.value + 1) % songs.length;
+  isPlaying.value = true;
+  loadSong(nextIndex);
+}
+
+function prevSong() {
+  const prevIndex = (currentSongIndex.value - 1 + songs.length) % songs.length;
+  isPlaying.value = true;
+  loadSong(prevIndex);
 }
 
 function onSeek() {
@@ -94,9 +129,8 @@ onMounted(() => {
 
   audio.value.addEventListener("ended", () => {
     const nextIndex = (currentSongIndex.value + 1) % songs.length;
-    loadSong(nextIndex);
-    audio.value.play();
     isPlaying.value = true;
+    loadSong(nextIndex);
   });
 });
 </script>
