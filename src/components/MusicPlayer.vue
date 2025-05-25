@@ -1,5 +1,4 @@
 <template>
-  <p style="color: red">🎵 MusicPlayer 渲染</p>
   <div class="app">
     <div
       class="background"
@@ -42,11 +41,13 @@
       </div>
     </div>
   </div>
+  <CurrentTime />
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-
+//导入时间模块
+import CurrentTime from "./CurrentTime.vue";
 const songs = [
   {
     src: "/music/绝不会忘记.mp3",

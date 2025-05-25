@@ -5,8 +5,7 @@ import CurrentTime from "./components/CurrentTime.vue";
 
 <template>
   <div>
-    <MusicPlayer />
-    <CurrentTime />
+    <router-view />
   </div>
 </template>
 
